@@ -1,0 +1,27 @@
+import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
+import { relations } from "drizzle-orm";
+import { createId } from "@paralleldrive/cuid2";
+
+export const trips = sqliteTable("trips", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  name: text("name").notNull(),
+  startDate: integer("start_date", { mode: "timestamp" }).notNull(),
+  endDate: integer("end_date", { mode: "timestamp" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
+export const days = sqliteTable("days", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  tripId: text("trid_id")
+    .notNull()
+    .references(() => trips.id, { onDelete: "cascade" }),
+  date: integer("date", { mode: "timestamp" }).notNull(),
+  dayNumber: integer("day_number").notNull(),
+  notes: text("notes"),
+});
