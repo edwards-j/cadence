@@ -1,6 +1,7 @@
 import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
 import { createId } from "@paralleldrive/cuid2";
+import { ACTIVITY_TYPES } from "@/lib/activity-types";
 
 export const trips = sqliteTable("trips", {
   id: text("id")
@@ -35,7 +36,7 @@ export const activities = sqliteTable("activities", {
     .references(() => days.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   type: text("type", {
-    enum: ["transit", "physical", "sightseeing", "food", "nightlife", "rest"],
+    enum: ACTIVITY_TYPES,
   }).notNull(),
   durationHours: real("duration_hours").notNull(),
   location: text("location"),
