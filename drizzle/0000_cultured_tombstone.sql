@@ -1,0 +1,28 @@
+CREATE TABLE `activities` (
+	`id` text PRIMARY KEY NOT NULL,
+	`day_id` text NOT NULL,
+	`name` text NOT NULL,
+	`type` text NOT NULL,
+	`duration_hours` real NOT NULL,
+	`location` text,
+	`start_time` text,
+	`order_index` integer NOT NULL,
+	FOREIGN KEY (`day_id`) REFERENCES `days`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE `days` (
+	`id` text PRIMARY KEY NOT NULL,
+	`trid_id` text NOT NULL,
+	`date` integer NOT NULL,
+	`day_number` integer NOT NULL,
+	`notes` text,
+	FOREIGN KEY (`trid_id`) REFERENCES `trips`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE `trips` (
+	`id` text PRIMARY KEY NOT NULL,
+	`name` text NOT NULL,
+	`start_date` integer NOT NULL,
+	`end_date` integer NOT NULL,
+	`created_at` integer NOT NULL
+);
