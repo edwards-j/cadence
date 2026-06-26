@@ -1,15 +1,9 @@
-import { db } from "@/db";
+import { getCurrentTrip } from "@/db/queries";
 import { calculateCadenceScore, cadenceLabel } from "@/lib/cadence";
+import { AddActivityForm } from "@/components/AddActivityForm";
 
 export default async function Home() {
-  const trip = await db.query.trips.findFirst({
-    with: {
-      days: {
-        with: { activities: true },
-        orderBy: (days, { asc }) => [asc(days.dayNumber)],
-      },
-    },
-  });
+  const trip = await getCurrentTrip();
 
   if (!trip) {
     return (
@@ -65,6 +59,7 @@ export default async function Home() {
                     </span>
                   </li>
                 ))}
+                <AddActivityForm dayId={day.id} />
               </ul>
             </div>
           );
