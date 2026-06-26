@@ -4,6 +4,8 @@ import { AddActivityForm } from "@/components/AddActivityForm";
 import { ActivityRow } from "@/components/ActivityRow";
 import { CadenceCurve } from "@/components/CadenceCurve";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const trip = await getCurrentTrip();
 

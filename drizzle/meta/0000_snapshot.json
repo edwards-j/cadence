@@ -70,12 +70,8 @@
           "name": "activities_day_id_days_id_fk",
           "tableFrom": "activities",
           "tableTo": "days",
-          "columnsFrom": [
-            "day_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["day_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -94,8 +90,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "trid_id": {
-          "name": "trid_id",
+        "trip_id": {
+          "name": "trip_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -125,16 +121,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "days_trid_id_trips_id_fk": {
-          "name": "days_trid_id_trips_id_fk",
+        "days_trip_id_trips_id_fk": {
+          "name": "days_trip_id_trips_id_fk",
           "tableFrom": "days",
           "tableTo": "trips",
-          "columnsFrom": [
-            "trid_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["trip_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }

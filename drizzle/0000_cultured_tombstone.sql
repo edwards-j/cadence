@@ -12,11 +12,11 @@ CREATE TABLE `activities` (
 --> statement-breakpoint
 CREATE TABLE `days` (
 	`id` text PRIMARY KEY NOT NULL,
-	`trid_id` text NOT NULL,
+	`trip_id` text NOT NULL,
 	`date` integer NOT NULL,
 	`day_number` integer NOT NULL,
 	`notes` text,
-	FOREIGN KEY (`trid_id`) REFERENCES `trips`(`id`) ON UPDATE no action ON DELETE cascade
+	FOREIGN KEY (`trip_id`) REFERENCES `trips`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `trips` (

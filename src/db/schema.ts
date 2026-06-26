@@ -19,7 +19,7 @@ export const days = sqliteTable("days", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => createId()),
-  tripId: text("trid_id")
+  tripId: text("trip_id")
     .notNull()
     .references(() => trips.id, { onDelete: "cascade" }),
   date: integer("date", { mode: "timestamp" }).notNull(),
