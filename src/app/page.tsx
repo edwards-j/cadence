@@ -2,6 +2,7 @@ import { getCurrentTrip } from "@/db/queries";
 import { calculateCadenceScore, cadenceLabel } from "@/lib/cadence";
 import { AddActivityForm } from "@/components/AddActivityForm";
 import { ActivityRow } from "@/components/ActivityRow";
+import { CadenceCurve } from "@/components/CadenceCurve";
 
 export default async function Home() {
   const trip = await getCurrentTrip();
@@ -17,6 +18,16 @@ export default async function Home() {
     );
   }
 
+  const curveData = trip.days.map((day) => {
+    const score = calculateCadenceScore(day.activities);
+    return {
+      dayId: day.id,
+      dayNumber: day.dayNumber,
+      score,
+      label: cadenceLabel(score),
+    };
+  });
+
   return (
     <main className="max-w-2xl mx-auto p-8">
       <header className="mb-8">
@@ -27,9 +38,13 @@ export default async function Home() {
         </p>
       </header>
 
+      <div className="mb-8">
+        <CadenceCurve data={curveData} />
+      </div>
+
       <div className="space-y-4">
         {trip.days.map((day) => {
-          const score = calculateCadenceScore(day.activities);
+          const score = curveData.find((d) => d.dayId === day.id)!.score;
           return (
             <div key={day.id} className="border rounded-lg p-4">
               <div className="flex justify-between items-start mb-3">

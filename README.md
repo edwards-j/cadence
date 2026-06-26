@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cadence
 
-## Getting Started
+A trip intensity planner. Add activities to days, watch an honest pacing curve emerge. Built to answer the question: *am I doing too much?*
 
-First, run the development server:
+## What it does
+
+Each activity gets a **Cadence Score** — weighted hours mapped to a 0–10 intensity scale. Transit and hiking cost more than lunch. Scores roll up into a per-day bar and a trip-level pacing curve so you can see at a glance where your trip is going to hurt.
+
+| Score | Label |
+|-------|-------|
+| 0–3 | Chill |
+| 3–5 | Light |
+| 5–7 | Balanced |
+| 7–8.5 | Heavy |
+| 8.5+ | Brutal |
+
+Activity type weights (tunable in [src/lib/cadence.ts](src/lib/cadence.ts)):
+
+| Type | Multiplier |
+|------|-----------|
+| Rest | 0.2× |
+| Food / Leisure | 0.5× |
+| Sightseeing | 1.0× |
+| Nightlife | 1.3× |
+| Transit | 1.5× |
+| Hike / Physical | 2.0× |
+
+## Roadmap
+
+### MVP — "The Honest Mirror"
+Trip container, day-by-day activity log, per-day intensity bars, trip-level pacing curve. No maps, no APIs, no suggestions. Just honest accounting.
+
+### V2 — "The Aware Planner"
+Geographic clustering warnings, rolling fatigue debt across days, realistic transit cost injection, and a flag system that surfaces problems like back-to-back transit days or nightlife before an early flight.
+
+### V3 — "The Collaborator"
+Suggest-a-fix button to rebalance brutal days, wishlist-to-schedule seeding by geographic area, AI-powered itinerary review from a free-text trip style note, reusable pacing templates from past trips, and collaborative planning that surfaces preference conflicts between travel partners.
+
+## Stack
+
+- **Next.js 16** — app framework
+- **tRPC 11** — end-to-end type-safe API
+- **Drizzle ORM** + **libSQL** — SQLite-backed persistence
+- **TanStack Query** — server state
+- **Tailwind CSS v4** — styling
+
+## Getting started
 
 ```bash
-npm run dev
-# or
+yarn install
+yarn db:migrate
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Database scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+yarn db:generate   # generate migrations from schema changes
+yarn db:migrate    # apply migrations
+yarn db:studio     # open Drizzle Studio
+```
