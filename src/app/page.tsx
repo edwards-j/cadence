@@ -1,6 +1,7 @@
 import { getCurrentTrip } from "@/db/queries";
 import { calculateCadenceScore, cadenceLabel } from "@/lib/cadence";
 import { AddActivityForm } from "@/components/AddActivityForm";
+import { ActivityRow } from "@/components/ActivityRow";
 
 export default async function Home() {
   const trip = await getCurrentTrip();
@@ -52,12 +53,7 @@ export default async function Home() {
               </div>
               <ul className="text-sm space-y-1">
                 {day.activities.map((a) => (
-                  <li key={a.id} className="flex justify-between text-gray-700">
-                    <span>{a.name}</span>
-                    <span className="text-gray-500">
-                      {a.durationHours}h · {a.type}
-                    </span>
-                  </li>
+                  <ActivityRow key={a.id} activity={a} />
                 ))}
                 <AddActivityForm dayId={day.id} />
               </ul>
