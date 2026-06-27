@@ -20,8 +20,15 @@ export default async function Home() {
     );
   }
 
+  const scoreByDayId = new Map(
+    trip.days.map((day) => {
+      const score = calculateCadenceScore(day.activities);
+      return [day.id, score] as const;
+    }),
+  );
+
   const curveData = trip.days.map((day) => {
-    const score = calculateCadenceScore(day.activities);
+    const score = scoreByDayId.get(day.id)!;
     return {
       dayId: day.id,
       dayNumber: day.dayNumber,
@@ -46,7 +53,7 @@ export default async function Home() {
 
       <div className="space-y-4">
         {trip.days.map((day) => {
-          const score = curveData.find((d) => d.dayId === day.id)!.score;
+          const score = scoreByDayId.get(day.id)!;
           return (
             <div key={day.id} className="border rounded-lg p-4">
               <div className="flex justify-between items-start mb-3">

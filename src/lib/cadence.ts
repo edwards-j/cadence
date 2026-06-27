@@ -17,13 +17,20 @@ const TYPE_WEIGHTS: Record<ActivityType, number> = {
   rest: 0.2,
 };
 
-const enum CADENCE_LABEL {
-  CHILL = "Chill",
-  LIGHT = "Light",
-  BALANCED = "Balanced",
-  HEAVY = "Heavy",
-  BRUTAL = "Brutal",
-}
+// A 12 hour day of mixed activities is hard bu completable
+// A 14 hour day is about the max for most people
+// This number will be tuned with use
+const BRUTAL_DAY_THRESHOLD = 14;
+
+const CADENCE_LABEL = {
+  CHILL: "Chill",
+  LIGHT: "Light",
+  BALANCED: "Balanced",
+  HEAVY: "Heavy",
+  BRUTAL: "Brutal",
+} as const;
+
+type CadenceLabel = (typeof CADENCE_LABEL)[keyof typeof CADENCE_LABEL];
 
 /**
  * The minimal shape of an activity needed for scoring.
@@ -57,11 +64,6 @@ export function calculateCadenceScore(
     weightedHours += activity.durationHours * TYPE_WEIGHTS[activity.type];
   }
 
-  // A 12 hour day of mixed activities is hard bu completable
-  // A 14 hour day is about the max for most people
-  // This number will be tuned with use
-  const BRUTAL_DAY_THRESHOLD = 14;
-
   // Convert weighted hours into a 0–10 scale by mapping the threshold to 10
   // So 14 weighted hours → score of 10.7 weighted hours → score of 5
   const rawScore = (weightedHours / BRUTAL_DAY_THRESHOLD) * 10;
@@ -81,7 +83,7 @@ export function calculateCadenceScore(
  * Returns a short human label for a Cadence Score.
  * Used in UI to give the number context.
  */
-export function cadenceLabel(score: number): CADENCE_LABEL {
+export function cadenceLabel(score: number): CadenceLabel {
   if (score < 3) return CADENCE_LABEL.CHILL;
   if (score < 5) return CADENCE_LABEL.LIGHT;
   if (score < 7) return CADENCE_LABEL.BALANCED;
