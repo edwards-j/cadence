@@ -1,5 +1,5 @@
 import { getCurrentTrip } from "@/db/queries";
-import { calculateCadenceScore, cadenceLabel } from "@/lib/cadence";
+import { calculateCadenceScore, cadenceBucket } from "@/lib/cadence";
 import { AddActivityForm } from "@/components/AddActivityForm";
 import { ActivityRow } from "@/components/ActivityRow";
 import { CadenceCurve } from "@/components/CadenceCurve";
@@ -19,21 +19,19 @@ export default async function Home() {
       </main>
     );
   }
-
-  const scoreByDayId = new Map(
+  const cadenceByDayId = new Map(
     trip.days.map((day) => {
       const score = calculateCadenceScore(day.activities);
-      return [day.id, score] as const;
+      return [day.id, cadenceBucket(score)] as const;
     }),
   );
 
   const curveData = trip.days.map((day) => {
-    const score = scoreByDayId.get(day.id)!;
+    const cadence = cadenceByDayId.get(day.id)!;
     return {
       dayId: day.id,
       dayNumber: day.dayNumber,
-      score,
-      label: cadenceLabel(score),
+      ...cadence,
     };
   });
 
@@ -41,7 +39,7 @@ export default async function Home() {
     <main className="max-w-2xl mx-auto p-8">
       <header className="mb-8">
         <h1 className="text-3xl font-medium">{trip.name}</h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-sm text-muted mt-1">
           {trip.startDate.toLocaleDateString()} →{" "}
           {trip.endDate.toLocaleDateString()}
         </p>
@@ -53,26 +51,24 @@ export default async function Home() {
 
       <div className="space-y-4">
         {trip.days.map((day) => {
-          const score = scoreByDayId.get(day.id)!;
+          const cadence = cadenceByDayId.get(day.id)!;
           return (
-            <div key={day.id} className="border rounded-lg p-4">
+            <div key={day.id} className="border border-subtle rounded-lg p-4">
               <div className="flex justify-between items-start mb-3">
                 <div>
                   <div className="font-medium">Day {day.dayNumber}</div>
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-muted">
                     {day.date.toLocaleDateString()}
                   </div>
                   {day.notes && (
-                    <div className="text-xs text-gray-400 mt-1 italic">
+                    <div className="text-xs text-faint mt-1 italic">
                       {day.notes}
                     </div>
                   )}
                 </div>
                 <div className="text-right">
-                  <div className="text-3xl font-medium">{score}</div>
-                  <div className="text-xs text-gray-500">
-                    {cadenceLabel(score)}
-                  </div>
+                  <div className="text-3xl font-medium">{cadence.score}</div>
+                  <div className="text-xs text-muted">{cadence.label}</div>
                 </div>
               </div>
               <ul className="text-sm space-y-1">

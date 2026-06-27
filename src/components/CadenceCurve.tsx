@@ -13,17 +13,8 @@ type CurveDatum = {
   dayId: string;
   dayNumber: number;
   score: number;
-  label: string;
+  color: string;
 };
-
-// Placing outside the component so it doesn't get recreated every render
-// Simple pure function. Same input = same output
-function colorForScore(score: number): string {
-  if (score >= 8) return "#dc2626";
-  if (score >= 6) return "#f59e0b";
-  if (score >= 3) return "#10b981";
-  return "#94a3b8";
-}
 
 export function CadenceCurve({ data }: { data: CurveDatum[] }) {
   return (
@@ -34,19 +25,19 @@ export function CadenceCurve({ data }: { data: CurveDatum[] }) {
             dataKey="dayNumber"
             tickLine={false}
             axisLine={false}
-            tick={{ fontSize: 12, fill: "#9ca3af" }}
+            tick={{ fontSize: 12, fill: "var(--color-muted)" }}
           />
           <YAxis
             domain={[0, 10]}
             ticks={[0, 5, 10]}
             tickLine={false}
             axisLine={false}
-            tick={{ fontSize: 12, fill: "#9ca3af" }}
+            tick={{ fontSize: 12, fill: "var(--color-muted)" }}
             width={24}
           />
           <Bar dataKey="score" radius={[4, 4, 0, 0]}>
             {data.map((d) => (
-              <Cell key={d.dayId} fill={colorForScore(d.score)} />
+              <Cell key={d.dayId} fill={d.color} />
             ))}
           </Bar>
         </BarChart>

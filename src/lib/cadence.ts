@@ -22,16 +22,6 @@ const TYPE_WEIGHTS: Record<ActivityType, number> = {
 // This number will be tuned with use
 const BRUTAL_DAY_THRESHOLD = 14;
 
-const CADENCE_LABEL = {
-  CHILL: "Chill",
-  LIGHT: "Light",
-  BALANCED: "Balanced",
-  HEAVY: "Heavy",
-  BRUTAL: "Brutal",
-} as const;
-
-type CadenceLabel = (typeof CADENCE_LABEL)[keyof typeof CADENCE_LABEL];
-
 /**
  * The minimal shape of an activity needed for scoring.
  * Intentionally narrow — we don't need name, location, etc.
@@ -40,6 +30,61 @@ export type ActivityForScoring = {
   type: ActivityType;
   durationHours: number;
 };
+
+export type CadenceBucket = "chill" | "light" | "balanced" | "heavy" | "brutal";
+
+export function scoreToBucket(score: number): CadenceBucket {
+  if (score >= 8) return "brutal";
+  if (score >= 6) return "heavy";
+  if (score >= 4) return "balanced";
+  if (score >= 2) return "light";
+  return "chill";
+}
+
+export function bucketLabel(bucket: CadenceBucket): string {
+  switch (bucket) {
+    case "chill":
+      return "Chill";
+    case "light":
+      return "Light";
+    case "balanced":
+      return "Balanced";
+    case "heavy":
+      return "Heavy";
+    case "brutal":
+      return "Brutal";
+  }
+}
+
+export function bucketColor(bucket: CadenceBucket): string {
+  switch (bucket) {
+    case "chill":
+      return "var(--color-cadence-chill)";
+    case "light":
+      return "var(--color-cadence-light)";
+    case "balanced":
+      return "var(--color-cadence-balanced)";
+    case "heavy":
+      return "var(--color-cadence-heavy)";
+    case "brutal":
+      return "var(--color-cadence-brutal)";
+  }
+}
+
+export function cadenceBucket(score: number): {
+  score: number;
+  bucket: CadenceBucket;
+  label: string;
+  color: string;
+} {
+  const bucket = scoreToBucket(score);
+  return {
+    score,
+    bucket,
+    label: bucketLabel(bucket),
+    color: bucketColor(bucket),
+  };
+}
 
 /**
  * Calculates the Cadence Score for a single day.
@@ -77,16 +122,4 @@ export function calculateCadenceScore(
   // 7.83 becomes 7.8, 4.05 becomes 4.1
   // Easier to read in the UI
   return Math.round(clampedScore * 10) / 10;
-}
-
-/**
- * Returns a short human label for a Cadence Score.
- * Used in UI to give the number context.
- */
-export function cadenceLabel(score: number): CadenceLabel {
-  if (score < 3) return CADENCE_LABEL.CHILL;
-  if (score < 5) return CADENCE_LABEL.LIGHT;
-  if (score < 7) return CADENCE_LABEL.BALANCED;
-  if (score < 8.5) return CADENCE_LABEL.HEAVY;
-  return CADENCE_LABEL.BRUTAL;
 }

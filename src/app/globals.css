@@ -1,26 +1,36 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  --color-muted: #6b7280;
+  --color-faint: #9ca3af;
+  --color-border-subtle: #e5e7eb;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-cadence-chill: #94a3b8;
+  --color-cadence-light: #84cc16;
+  --color-cadence-balanced: #10b981;
+  --color-cadence-heavy: #f59e0b;
+  --color-cadence-brutal: #dc2626;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --color-muted: #9ca3af;
+    --color-faint: #6b7280;
+    --color-border-subtle: #1f2937;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --color-muted: var(--color-muted);
+  --color-faint: var(--color-faint);
+  --color-border-subtle: var(--color-border-subtle);
+
+  --color-cadence-chill: var(--color-cadence-chill);
+  --color-cadence-light: var(--color-cadence-light);
+  --color-cadence-balanced: var(--color-cadence-balanced);
+  --color-cadence-heavy: var(--color-cadence-heavy);
+  --color-cadence-brutal: var(--color-cadence-brutal);
 }

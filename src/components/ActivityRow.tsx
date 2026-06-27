@@ -80,7 +80,7 @@ export function ActivityRow({ activity }: { activity: Activity }) {
 
   if (isEditing) {
     return (
-      <li className="border-t pt-2 mt-2 first:border-t-0 first:pt-0 first:mt-0">
+      <li className="border-t border-subtle pt-2 mt-2 first:border-t-0 first:pt-0 first:mt-0">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -148,10 +148,10 @@ export function ActivityRow({ activity }: { activity: Activity }) {
   }
 
   return (
-    <li className="flex justify-between items-center text-gray-700">
+    <li className="flex justify-between items-center">
       <span>{activity.name}</span>
       <div className="flex items-center gap-3">
-        <span className="text-gray-500">
+        <span className="text-muted">
           {activity.durationHours}h · {activity.type}
         </span>
         <button
