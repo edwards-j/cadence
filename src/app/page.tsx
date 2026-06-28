@@ -1,17 +1,10 @@
 import Link from "next/link";
-import { getCurrentTrip } from "@/db/queries";
-import {
-  averageScore,
-  cadenceBucket,
-  calculateCadenceScore,
-  peakScore,
-  totalHours,
-} from "@/lib/cadence";
-import { CadenceCurve } from "@/components/CadenceCurve";
+import { getAllTrips } from "@/db/queries";
+import { cadenceBucket } from "@/lib/cadence";
+import { NewTripForm } from "@/components/NewTripForm";
 
 export const dynamic = "force-dynamic";
 
-const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTHS = [
   "Jan",
   "Feb",
@@ -27,16 +20,84 @@ const MONTHS = [
   "Dec",
 ];
 
-const fmtRange = (start: Date, end: Date) =>
-  `${MONTHS[start.getMonth()]} ${start.getDate()} – ${end.getDate()}`;
+const fmtRange = (start: Date, end: Date) => {
+  const startStr = `${MONTHS[start.getMonth()]} ${start.getDate()}`;
+  const endStr =
+    start.getMonth() === end.getMonth()
+      ? `${end.getDate()}`
+      : `${MONTHS[end.getMonth()]} ${end.getDate()}`;
+  return `${startStr} – ${endStr}`;
+};
 
-const pad2 = (n: number) => String(n).padStart(2, "0");
-const fmtH = (h: number) => `${h}h`;
+function TripCardRow({
+  trip,
+}: {
+  trip: {
+    id: string;
+    name: string;
+    startDate: Date;
+    endDate: Date;
+    dayCount: number;
+    averageCadence: number;
+    isEmpty: boolean;
+  };
+}) {
+  const b = cadenceBucket(trip.averageCadence);
+
+  return (
+    <li>
+      <Link
+        href={`/trips/${trip.id}`}
+        className="flex items-center gap-4 px-5 py-4"
+        style={{ borderTop: "1px solid var(--color-border-subtle)" }}
+      >
+        <div className="flex-1 min-w-0">
+          <div
+            className="font-serif truncate"
+            style={{ fontSize: 22, color: "var(--color-text-strong)" }}
+          >
+            {trip.name}
+          </div>
+          <div
+            className="text-[12px] mt-[3px]"
+            style={{ color: "var(--color-text-muted)" }}
+          >
+            {fmtRange(trip.startDate, trip.endDate)} · {trip.dayCount} days
+          </div>
+        </div>
+        {!trip.isEmpty && (
+          <span
+            aria-hidden
+            style={{
+              width: 7,
+              height: 7,
+              borderRadius: "50%",
+              background: b.color,
+              flexShrink: 0,
+            }}
+          />
+        )}
+        <span
+          className="font-serif text-right"
+          style={{
+            fontSize: 24,
+            color: trip.isEmpty
+              ? "var(--color-text-faint)"
+              : "var(--color-text-strong)",
+            width: 40,
+          }}
+        >
+          {trip.isEmpty ? "—" : trip.averageCadence.toFixed(1)}
+        </span>
+      </Link>
+    </li>
+  );
+}
 
 export default async function Home() {
-  const trip = await getCurrentTrip();
+  const { upcoming, past } = await getAllTrips();
 
-  if (!trip) {
+  if (upcoming.length === 0 && past.length === 0) {
     return (
       <main
         className="max-w-[480px] mx-auto px-6 py-16"
@@ -44,28 +105,11 @@ export default async function Home() {
       >
         <p>
           No trips yet. Run <code>yarn tsx src/db/seed.ts</code> to seed the
-          database.
+          database, or create one above.
         </p>
       </main>
     );
   }
-
-  // Derive everything for the overview view.
-  const dayScores = trip.days.map((d) => ({
-    dayId: d.id,
-    dayNumber: d.dayNumber,
-    score: calculateCadenceScore(d.activities),
-  }));
-
-  const scores = dayScores.map((d) => d.score);
-  const avg = averageScore(scores);
-  const peak = peakScore(scores);
-  const avgB = cadenceBucket(avg);
-
-  const curveData = dayScores.map((d) => {
-    const b = cadenceBucket(d.score);
-    return { ...d, color: b.color };
-  });
 
   return (
     <main
@@ -76,158 +120,61 @@ export default async function Home() {
         minHeight: "100dvh",
       }}
     >
-      {/* Header */}
       <section className="px-6 pt-10 pb-2">
         <div
           className="text-[11px] tracking-[0.2em] uppercase"
           style={{ color: "var(--color-text-muted)" }}
         >
-          Trip · {trip.days.length} days
+          Trips · {upcoming.length + past.length}
         </div>
-        <div className="flex items-end justify-between mt-2">
-          <div>
-            <h1
-              className="font-serif leading-[0.9]"
-              style={{
-                fontSize: 56,
-                color: "var(--color-text-strong)",
-              }}
-            >
-              {trip.name}
-            </h1>
-            <div
-              className="text-[13px] mt-3"
-              style={{ color: "var(--color-text-muted)" }}
-            >
-              {fmtRange(trip.startDate, trip.endDate)}
-            </div>
-          </div>
-          <div className="text-right">
-            <div
-              className="font-serif leading-none"
-              style={{ fontSize: 48, color: avgB.color }}
-            >
-              {avg.toFixed(1)}
-            </div>
-            <div
-              className="text-[10px] tracking-[0.14em] uppercase mt-1"
-              style={{ color: "var(--color-text-muted)" }}
-            >
-              avg · {avgB.label}
-            </div>
-          </div>
-        </div>
+        <h1
+          className="font-serif leading-[0.9] mt-2"
+          style={{
+            fontSize: 56,
+            color: "var(--color-text-strong)",
+          }}
+        >
+          Cadence
+        </h1>
       </section>
 
-      {/* Pacing curve */}
-      <section
-        className="mx-6 mt-5 p-5 pb-4"
-        style={{
-          border: "1px solid var(--color-border-soft)",
-          borderRadius: 20,
-          background:
-            "linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0))",
-        }}
-      >
-        <div className="flex justify-between items-baseline px-1">
-          <span
-            className="font-serif"
-            style={{ fontSize: 20, color: "var(--color-text-strong)" }}
-          >
-            Pacing curve
-          </span>
-          <span
-            className="text-[11px]"
+      <NewTripForm />
+
+      {upcoming.length > 0 && (
+        <section className="px-3 mt-7">
+          <div
+            className="px-5 pb-2 text-[11px] tracking-[0.16em] uppercase"
             style={{ color: "var(--color-text-muted)" }}
           >
-            peak {peak.toFixed(1)}
-          </span>
-        </div>
-        <CadenceCurve data={curveData} />
-      </section>
+            Upcoming
+          </div>
+          <ul>
+            {upcoming.map((trip) => (
+              <TripCardRow key={trip.id} trip={trip} />
+            ))}
+          </ul>
+        </section>
+      )}
 
-      {/* Itinerary */}
-      <section className="px-3 mt-7">
-        <div
-          className="px-5 pb-2 text-[11px] tracking-[0.16em] uppercase"
-          style={{ color: "var(--color-text-muted)" }}
-        >
-          Itinerary
-        </div>
+      {past.length > 0 && (
+        <section className="px-3 mt-7">
+          <details>
+            <summary
+              className="px-5 pb-2 text-[11px] tracking-[0.16em] uppercase cursor-pointer list-none"
+              style={{ color: "var(--color-text-muted)" }}
+            >
+              Past · {past.length}
+            </summary>
+            <ul>
+              {past.map((trip) => (
+                <TripCardRow key={trip.id} trip={trip} />
+              ))}
+            </ul>
+          </details>
+        </section>
+      )}
 
-        <ul>
-          {trip.days.map((day) => {
-            const score = calculateCadenceScore(day.activities);
-            const b = cadenceBucket(score);
-            const weekday = WEEKDAYS[day.date.getDay()];
-            const dateLabel = `${MONTHS[day.date.getMonth()]} ${day.date.getDate()}`;
-            const hours = totalHours(day.activities);
-
-            // Pull the first activity name as a working title for the day
-            // so the list reads like the Aperture mock without a title field.
-            const headline = day.activities[0]?.name ?? "Open day";
-
-            return (
-              <li key={day.id}>
-                <Link
-                  href={`/day/${day.id}`}
-                  className="flex items-center gap-4 px-5 py-4"
-                  style={{
-                    borderTop: "1px solid var(--color-border-subtle)",
-                  }}
-                >
-                  <div
-                    className="font-serif"
-                    style={{
-                      fontSize: 24,
-                      color: "var(--color-text-faint)",
-                      width: 28,
-                    }}
-                  >
-                    {pad2(day.dayNumber)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div
-                      className="text-[15px] font-medium truncate"
-                      style={{ color: "var(--color-text)" }}
-                    >
-                      {headline}
-                    </div>
-                    <div
-                      className="text-[12px] mt-[3px]"
-                      style={{ color: "var(--color-text-muted)" }}
-                    >
-                      {weekday} {dateLabel} · {day.activities.length} stops ·{" "}
-                      {fmtH(hours)}
-                    </div>
-                  </div>
-                  <span
-                    aria-hidden
-                    style={{
-                      width: 7,
-                      height: 7,
-                      borderRadius: "50%",
-                      background: b.color,
-                      flexShrink: 0,
-                    }}
-                  />
-                  <span
-                    className="font-serif text-right"
-                    style={{
-                      fontSize: 24,
-                      color: "var(--color-text-strong)",
-                      width: 40,
-                    }}
-                  >
-                    {score.toFixed(1)}
-                  </span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-        <div style={{ height: 48 }} />
-      </section>
+      <div style={{ height: 48 }} />
     </main>
   );
 }

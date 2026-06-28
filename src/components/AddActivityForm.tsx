@@ -17,7 +17,6 @@ const snap = (h: number) => Math.max(0.5, Math.round(h * 2) / 2);
  * underline, type chips on a row, duration stepper, light "Add" button.
  */
 export function AddActivityForm({ dayId }: { dayId: string }) {
-  const utils = trpc.useUtils();
   const router = useRouter();
 
   const [name, setName] = useState("");
@@ -26,7 +25,6 @@ export function AddActivityForm({ dayId }: { dayId: string }) {
 
   const createActivity = trpc.activity.create.useMutation({
     onSuccess: async () => {
-      await utils.trip.getCurrent.invalidate();
       router.refresh();
       setName("");
       setDuration(2);

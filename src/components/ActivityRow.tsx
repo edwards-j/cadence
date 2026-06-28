@@ -30,12 +30,10 @@ const snap = (h: number) => Math.max(0.5, Math.round(h * 2) / 2);
  * No modal edit form — direct manipulation everything.
  */
 export function ActivityRow({ activity }: { activity: Activity }) {
-  const utils = trpc.useUtils();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   const refresh = async () => {
-    await utils.trip.getCurrent.invalidate();
     startTransition(() => router.refresh());
   };
 

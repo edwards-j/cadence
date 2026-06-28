@@ -1,12 +1,26 @@
 import { z } from "zod";
-import { eq, asc } from "drizzle-orm";
-import { router, publicProcedure } from "../trpc";
-import { db } from "@/db";
-import { trips, days } from "@/db/schema";
-import { getCurrentTrip } from "@/db/queries";
+import { router, protectedProcedure } from "../trpc";
+import { createDay, createTrip } from "@/db/mutations";
 
 export const tripRouter = router({
-  getCurrent: publicProcedure.query(async () => {
-    return getCurrentTrip();
-  }),
+  create: protectedProcedure
+    .input(
+      z.object({
+        name: z.string().min(1).max(200),
+        startDate: z.date(),
+        dayCount: z.number().int().min(1).max(60),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      return createTrip(input);
+    }),
+  createDay: protectedProcedure
+    .input(
+      z.object({
+        tripId: z.string(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      return createDay(input);
+    }),
 });

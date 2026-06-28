@@ -9,7 +9,6 @@ export const trips = sqliteTable("trips", {
     .$defaultFn(() => createId()),
   name: text("name").notNull(),
   startDate: integer("start_date", { mode: "timestamp" }).notNull(),
-  endDate: integer("end_date", { mode: "timestamp" }).notNull(),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
     .$defaultFn(() => new Date()),
@@ -22,7 +21,6 @@ export const days = sqliteTable("days", {
   tripId: text("trip_id")
     .notNull()
     .references(() => trips.id, { onDelete: "cascade" }),
-  date: integer("date", { mode: "timestamp" }).notNull(),
   dayNumber: integer("day_number").notNull(),
   notes: text("notes"),
 });

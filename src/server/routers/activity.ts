@@ -1,10 +1,10 @@
 import { z } from "zod";
-import { router, publicProcedure } from "../trpc";
+import { router, protectedProcedure } from "../trpc";
 import { createActivity, updateActivity, deleteActivity } from "@/db/mutations";
 import { ACTIVITY_TYPES } from "@/lib/activity-types";
 
 export const activityRouter = router({
-  create: publicProcedure
+  create: protectedProcedure
     .input(
       z.object({
         dayId: z.string(),
@@ -18,7 +18,7 @@ export const activityRouter = router({
     )
     .mutation(({ input }) => createActivity(input)),
 
-  update: publicProcedure
+  update: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -32,7 +32,7 @@ export const activityRouter = router({
     )
     .mutation(({ input }) => updateActivity(input)),
 
-  delete: publicProcedure
+  delete: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(({ input }) => deleteActivity(input.id)),
 });

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCurrentTrip } from "@/db/queries";
+import { getTripById } from "@/db/queries";
 import {
   cadenceBucket,
   calculateCadenceScore,
@@ -8,6 +8,7 @@ import {
 } from "@/lib/cadence";
 import { ActivityRow } from "@/components/ActivityRow";
 import { AddActivityForm } from "@/components/AddActivityForm";
+import { getDayDate } from "@/lib/dates";
 
 export const dynamic = "force-dynamic";
 
@@ -33,19 +34,24 @@ const fmtH = (h: number) => `${h}h`;
 export default async function DayPage({
   params,
 }: {
-  params: Promise<{ dayId: string }>;
+  params: Promise<{ id: string; dayId: string }>;
 }) {
-  const { dayId } = await params;
-  const trip = await getCurrentTrip();
+  const { id, dayId } = await params;
+
+  const trip = await getTripById(id);
+
   if (!trip) notFound();
 
   const day = trip.days.find((d) => d.id === dayId);
   if (!day) notFound();
 
+  const date = getDayDate(trip, day);
+
   const score = calculateCadenceScore(day.activities);
   const b = cadenceBucket(score);
-  const weekday = WEEKDAYS[day.date.getDay()];
-  const dateLabel = `${MONTHS[day.date.getMonth()]} ${day.date.getDate()}`;
+  const weekday = WEEKDAYS[date.getDay()];
+  const dateLabel = `${MONTHS[date.getMonth()]} ${date.getDate()}`;
+
   const hours = totalHours(day.activities);
   const headline = day.activities[0]?.name ?? "Open day";
 
@@ -61,7 +67,7 @@ export default async function DayPage({
       {/* Header + score */}
       <section className="px-6 pt-8">
         <Link
-          href="/"
+          href={`/trips/${id}`}
           className="inline-flex items-center gap-1 text-[13px]"
           style={{ color: "var(--color-text-muted)" }}
         >
