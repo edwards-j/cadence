@@ -1,23 +1,6 @@
-import type { ActivityType } from "./activity-types";
+import { ACTIVITY_TYPE_META, type ActivityType } from "./activity-types";
 
-/**
- * Intensity multipliers for each activity type.
- *
- * These are the central tuning knobs of the Cadence Score.
- * Higher = more draining per hour of activity.
- *
- * Tune these based on real trip data after using the app.
- */
-const TYPE_WEIGHTS: Record<ActivityType, number> = {
-  transit: 1.5,
-  physical: 2.0,
-  sightseeing: 1.0,
-  food: 0.5,
-  nightlife: 1.3,
-  rest: 0.2,
-};
-
-// A 12 hour day of mixed activities is hard bu completable
+// A 12 hour day of mixed activities is hard but completable
 // A 14 hour day is about the max for most people
 // This number will be tuned with use
 const BRUTAL_DAY_THRESHOLD = 14;
@@ -71,12 +54,14 @@ export function bucketColor(bucket: CadenceBucket): string {
   }
 }
 
-export function cadenceBucket(score: number): {
+export type CadenceResult = {
   score: number;
   bucket: CadenceBucket;
   label: string;
   color: string;
-} {
+};
+
+export function cadenceBucket(score: number): CadenceResult {
   const bucket = scoreToBucket(score);
   return {
     score,
@@ -90,11 +75,11 @@ export function cadenceBucket(score: number): {
  * Calculates the Cadence Score for a single day.
  *
  * Maps weighted activity hours to a 0–10 intensity scale:
- *   0–3   Chill / rest day
- *   3–5   Light day
- *   5–7   Balanced day
- *   7–8.5 Heavy day
- *   8.5+  Brutal — likely to cause burnout
+ *   0–2   Chill / rest day
+ *   2–4   Light day
+ *   4–6   Balanced day
+ *   6–8   Heavy day
+ *   8+    Brutal — likely to cause burnout
  *
  * @param activities — the day's activities (any objects with type + duration)
  * @returns score from 0 to 10, rounded to one decimal place
@@ -106,20 +91,34 @@ export function calculateCadenceScore(
 
   let weightedHours = 0;
   for (const activity of activities) {
-    weightedHours += activity.durationHours * TYPE_WEIGHTS[activity.type];
+    weightedHours +=
+      activity.durationHours * ACTIVITY_TYPE_META[activity.type].weight;
   }
 
   // Convert weighted hours into a 0–10 scale by mapping the threshold to 10
-  // So 14 weighted hours → score of 10.7 weighted hours → score of 5
   const rawScore = (weightedHours / BRUTAL_DAY_THRESHOLD) * 10;
 
-  // Take whichever is smaller, 10 or the raw score
-  // A 20 hour day and a 50 hour day all cap at 10
-  // Without this, a marathon day would mess up the entire trips pacing curve
+  // Cap at 10 so a marathon day doesn't blow out the whole trip's curve
   const clampedScore = Math.min(10, rawScore);
 
-  // Common pattern for rounding to one decimal place
-  // 7.83 becomes 7.8, 4.05 becomes 4.1
-  // Easier to read in the UI
+  // Round to one decimal — easier to read in the UI
   return Math.round(clampedScore * 10) / 10;
+}
+
+/** Average score across a list of days. 0 if empty. */
+export function averageScore(scores: number[]): number {
+  if (!scores.length) return 0;
+  const s = scores.reduce((a, b) => a + b, 0) / scores.length;
+  return Math.round(s * 10) / 10;
+}
+
+/** Highest score in a list of days. 0 if empty. */
+export function peakScore(scores: number[]): number {
+  if (!scores.length) return 0;
+  return Math.max(...scores);
+}
+
+/** Total duration in hours. */
+export function totalHours(activities: ActivityForScoring[]): number {
+  return activities.reduce((s, a) => s + a.durationHours, 0);
 }
