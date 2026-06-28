@@ -127,15 +127,18 @@ export default async function Home() {
         >
           Trips · {upcoming.length + past.length}
         </div>
-        <h1
-          className="font-serif leading-[0.9] mt-2"
-          style={{
-            fontSize: 56,
-            color: "var(--color-text-strong)",
-          }}
-        >
-          Cadence
-        </h1>
+        <div className="flex">
+          <img src="/assets/cadence-mark-paper.svg" alt="" width="34" />
+          <h1
+            className="font-serif leading-[0.9] mt-2 "
+            style={{
+              fontSize: 56,
+              color: "var(--color-text-strong)",
+            }}
+          >
+            Cadence
+          </h1>
+        </div>
       </section>
 
       <NewTripForm />
