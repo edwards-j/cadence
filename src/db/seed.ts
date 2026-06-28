@@ -15,7 +15,6 @@ async function seed() {
     .values({
       name: "Japan 2026",
       startDate: new Date("2026-10-15"),
-      endDate: new Date("2026-10-28"),
     })
     .returning();
 
@@ -26,7 +25,6 @@ async function seed() {
     .insert(days)
     .values({
       tripId: trip.id,
-      date: new Date("2026-10-15"),
       dayNumber: 1,
       notes: "Arrival day - jet lag expected",
     })
@@ -62,7 +60,6 @@ async function seed() {
     .insert(days)
     .values({
       tripId: trip.id,
-      date: new Date("2026-10-16"),
       dayNumber: 2,
     })
     .returning();
@@ -111,7 +108,6 @@ async function seed() {
     .insert(days)
     .values({
       tripId: trip.id,
-      date: new Date("2026-10-17"),
       dayNumber: 3,
       notes: "Recovery from jet lag",
     })
