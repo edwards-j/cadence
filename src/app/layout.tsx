@@ -19,6 +19,9 @@ const hankenGrotesk = Hanken_Grotesk({
 export const metadata: Metadata = {
   title: "Cadence",
   description: "Sustainable trip planning",
+  icons: {
+    apple: "/assets/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({

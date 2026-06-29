@@ -8,6 +8,7 @@ import {
   nextActivityType,
   type ActivityType,
 } from "@/lib/activity-types";
+import { formatHours, snapToHalfHour } from "@/lib/format";
 
 type Activity = {
   id: string;
@@ -17,8 +18,6 @@ type Activity = {
   location: string | null;
 };
 
-const fmtH = (h: number) => `${h}h`;
-const snap = (h: number) => Math.max(0.5, Math.round(h * 2) / 2);
 
 /**
  * Aperture activity row:
@@ -58,7 +57,7 @@ export function ActivityRow({ activity }: { activity: Activity }) {
   const step = (delta: number) =>
     updateActivity.mutate({
       id: activity.id,
-      durationHours: snap(activity.durationHours + delta),
+      durationHours: snapToHalfHour(activity.durationHours + delta),
     });
 
   return (
@@ -119,7 +118,7 @@ export function ActivityRow({ activity }: { activity: Activity }) {
           fontVariantNumeric: "tabular-nums",
         }}
       >
-        {fmtH(activity.durationHours)}
+        {formatHours(activity.durationHours)}
       </span>
       <Stepper onClick={() => step(0.5)} disabled={inflight} label="+" />
       <button

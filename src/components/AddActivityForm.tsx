@@ -8,9 +8,7 @@ import {
   ACTIVITY_TYPE_META,
   type ActivityType,
 } from "@/lib/activity-types";
-
-const fmtH = (h: number) => `${h}h`;
-const snap = (h: number) => Math.max(0.5, Math.round(h * 2) / 2);
+import { formatHours, snapToHalfHour } from "@/lib/format";
 
 /**
  * Aperture add-activity card: dashed border, name input on a hairline
@@ -116,7 +114,7 @@ export function AddActivityForm({ dayId }: { dayId: string }) {
       >
         <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
           <DurStep
-            onClick={() => setDuration((d) => snap(d - 0.5))}
+            onClick={() => setDuration((d) => snapToHalfHour(d - 0.5))}
             disabled={duration <= 0.5}
             label="−"
           />
@@ -129,10 +127,10 @@ export function AddActivityForm({ dayId }: { dayId: string }) {
               fontVariantNumeric: "tabular-nums",
             }}
           >
-            {fmtH(duration)}
+            {formatHours(duration)}
           </span>
           <DurStep
-            onClick={() => setDuration((d) => snap(Math.min(16, d + 0.5)))}
+            onClick={() => setDuration((d) => snapToHalfHour(Math.min(16, d + 0.5)))}
             label="+"
           />
         </div>

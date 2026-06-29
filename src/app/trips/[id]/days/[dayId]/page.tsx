@@ -9,27 +9,9 @@ import {
 import { ActivityRow } from "@/components/ActivityRow";
 import { AddActivityForm } from "@/components/AddActivityForm";
 import { getDayDate } from "@/lib/dates";
+import { MONTHS, WEEKDAYS, formatHours, twoDigit } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
-
-const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
-
-const pad2 = (n: number) => String(n).padStart(2, "0");
-const fmtH = (h: number) => `${h}h`;
 
 export default async function DayPage({
   params,
@@ -77,7 +59,7 @@ export default async function DayPage({
           className="text-[11px] tracking-[0.16em] uppercase mt-4"
           style={{ color: "var(--color-text-muted)" }}
         >
-          Day {pad2(day.dayNumber)} · {weekday} {dateLabel}
+          Day {twoDigit(day.dayNumber)} · {weekday} {dateLabel}
         </div>
         <h1
           className="font-serif mt-1 leading-none"
@@ -100,7 +82,7 @@ export default async function DayPage({
               className="text-[11px] mt-[2px]"
               style={{ color: "var(--color-text-muted)" }}
             >
-              {day.activities.length} activities · {fmtH(hours)}
+              {day.activities.length} activities · {formatHours(hours)}
             </div>
           </div>
         </div>

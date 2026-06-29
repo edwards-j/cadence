@@ -11,30 +11,9 @@ import { CadenceCurve } from "@/components/CadenceCurve";
 import { getDayDate, getTripEndDate } from "@/lib/dates";
 import { notFound } from "next/navigation";
 import { AddDayButton } from "@/components/AddDayButton";
+import { MONTHS, WEEKDAYS, formatHours, formatDateRange, twoDigit } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
-
-const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
-
-const fmtRange = (start: Date, end: Date) =>
-  `${MONTHS[start.getMonth()]} ${start.getDate()} – ${end.getDate()}`;
-
-const pad2 = (n: number) => String(n).padStart(2, "0");
-const fmtH = (h: number) => `${h}h`;
 
 export default async function TripPage({
   params,
@@ -96,7 +75,7 @@ export default async function TripPage({
               className="text-[13px] mt-3"
               style={{ color: "var(--color-text-muted)" }}
             >
-              {fmtRange(trip.startDate, getTripEndDate(trip))} ·{" "}
+              {formatDateRange(trip.startDate, getTripEndDate(trip))} ·{" "}
               {trip.days.length} days
             </div>
           </div>
@@ -184,7 +163,7 @@ export default async function TripPage({
                       width: 28,
                     }}
                   >
-                    {pad2(day.dayNumber)}
+                    {twoDigit(day.dayNumber)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div
@@ -198,7 +177,7 @@ export default async function TripPage({
                       style={{ color: "var(--color-text-muted)" }}
                     >
                       {weekday} {dateLabel} · {day.activities.length} stops ·{" "}
-                      {fmtH(hours)}
+                      {formatHours(hours)}
                     </div>
                   </div>
                   <span

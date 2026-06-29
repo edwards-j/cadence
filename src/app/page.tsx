@@ -2,32 +2,9 @@ import Link from "next/link";
 import { getAllTrips } from "@/db/queries";
 import { cadenceBucket } from "@/lib/cadence";
 import { NewTripForm } from "@/components/NewTripForm";
+import { formatDateRange } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
-
-const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
-
-const fmtRange = (start: Date, end: Date) => {
-  const startStr = `${MONTHS[start.getMonth()]} ${start.getDate()}`;
-  const endStr =
-    start.getMonth() === end.getMonth()
-      ? `${end.getDate()}`
-      : `${MONTHS[end.getMonth()]} ${end.getDate()}`;
-  return `${startStr} – ${endStr}`;
-};
 
 function TripCardRow({
   trip,
@@ -62,7 +39,7 @@ function TripCardRow({
             className="text-[12px] mt-[3px]"
             style={{ color: "var(--color-text-muted)" }}
           >
-            {fmtRange(trip.startDate, trip.endDate)} · {trip.dayCount} days
+            {formatDateRange(trip.startDate, trip.endDate)} · {trip.dayCount} days
           </div>
         </div>
         {!trip.isEmpty && (
