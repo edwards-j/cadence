@@ -10,6 +10,8 @@ import { ActivityRow } from "@/components/ActivityRow";
 import { AddActivityForm } from "@/components/AddActivityForm";
 import { getDayDate } from "@/lib/dates";
 import { MONTHS, WEEKDAYS, formatHours, twoDigit } from "@/lib/format";
+import { KebabMenu } from "@/components/KebabMenu";
+import { DeleteDayButton } from "@/components/DeleteDayButton";
 
 export const dynamic = "force-dynamic";
 
@@ -48,13 +50,18 @@ export default async function DayPage({
     >
       {/* Header + score */}
       <section className="px-6 pt-8">
-        <Link
-          href={`/trips/${id}`}
-          className="inline-flex items-center gap-1 text-[13px]"
-          style={{ color: "var(--color-text-muted)" }}
-        >
-          ‹&nbsp;Itinerary
-        </Link>
+        <div className="flex items-center justify-between">
+          <Link
+            href={`/trips/${id}`}
+            className="inline-flex items-center gap-1 text-[13px]"
+            style={{ color: "var(--color-text-muted)" }}
+          >
+            ‹&nbsp;Itinerary
+          </Link>
+          <KebabMenu>
+            <DeleteDayButton dayId={day.id} tripId={trip.id} />
+          </KebabMenu>
+        </div>
         <div
           className="text-[11px] tracking-[0.16em] uppercase mt-4"
           style={{ color: "var(--color-text-muted)" }}

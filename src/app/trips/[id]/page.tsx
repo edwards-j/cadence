@@ -11,7 +11,15 @@ import { CadenceCurve } from "@/components/CadenceCurve";
 import { getDayDate, getTripEndDate } from "@/lib/dates";
 import { notFound } from "next/navigation";
 import { AddDayButton } from "@/components/AddDayButton";
-import { MONTHS, WEEKDAYS, formatHours, formatDateRange, twoDigit } from "@/lib/format";
+import {
+  MONTHS,
+  WEEKDAYS,
+  formatHours,
+  formatDateRange,
+  twoDigit,
+} from "@/lib/format";
+import { KebabMenu } from "@/components/KebabMenu";
+import { DeleteTripButton } from "@/components/DeleteTripButton";
 
 export const dynamic = "force-dynamic";
 
@@ -53,13 +61,18 @@ export default async function TripPage({
     >
       {/* Header */}
       <section className="px-6 pt-10 pb-2">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1 text-[13px]"
-          style={{ color: "var(--color-text-muted)" }}
-        >
-          ‹&nbsp;Trips
-        </Link>
+        <div className="flex items-center justify-between">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1 text-[13px]"
+            style={{ color: "var(--color-text-muted)" }}
+          >
+            ‹&nbsp;Trips
+          </Link>
+          <KebabMenu>
+            <DeleteTripButton tripId={trip.id} />
+          </KebabMenu>
+        </div>
         <div className="flex items-end justify-between mt-2">
           <div>
             <h1

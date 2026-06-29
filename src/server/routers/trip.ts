@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../trpc";
-import { createDay, createTrip } from "@/db/mutations";
+import { createDay, createTrip, deleteDay, deleteTrip } from "@/db/mutations";
 
 export const tripRouter = router({
   create: protectedProcedure
@@ -23,4 +23,11 @@ export const tripRouter = router({
     .mutation(async ({ input }) => {
       return createDay(input);
     }),
+  delete: protectedProcedure
+    .input(z.object({ id: z.string().min(1) }))
+    .mutation(({ input }) => deleteTrip(input)),
+
+  deleteDay: protectedProcedure
+    .input(z.object({ id: z.string().min(1) }))
+    .mutation(({ input }) => deleteDay(input)),
 });

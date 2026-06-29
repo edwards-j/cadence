@@ -49,6 +49,10 @@ export async function createTrip(input: {
   return { id: tripId };
 }
 
+export async function deleteTrip(input: { id: string }) {
+  await db.delete(trips).where(eq(trips.id, input.id));
+}
+
 export async function createDay(input: {
   tripId: string;
 }): Promise<{ id: string }> {
@@ -64,6 +68,38 @@ export async function createDay(input: {
   `);
 
   return { id: dayId };
+}
+
+export async function deleteDay(input: { id: string }) {
+  const [target] = await db
+    .select({ tripId: days.tripId })
+    .from(days)
+    .where(eq(days.id, input.id));
+
+  if (!target) throw new Error("Day not found");
+
+  const allDays = await db
+    .select({ id: days.id, dayNumber: days.dayNumber })
+    .from(days)
+    .where(eq(days.tripId, target.tripId))
+    .orderBy(days.dayNumber);
+
+  const remaining = allDays.filter((d) => d.id !== input.id);
+
+  const updates = [];
+  for (const [index, day] of remaining.entries()) {
+    const newDayNumber = index + 1;
+    if (newDayNumber !== day.dayNumber) {
+      updates.push(
+        db
+          .update(days)
+          .set({ dayNumber: newDayNumber })
+          .where(eq(days.id, day.id)),
+      );
+    }
+  }
+
+  await db.batch([db.delete(days).where(eq(days.id, input.id)), ...updates]);
 }
 
 export async function createActivity(input: CreateActivityInput) {

@@ -16,42 +16,20 @@ export type ActivityForScoring = {
 
 export type CadenceBucket = "chill" | "light" | "balanced" | "heavy" | "brutal";
 
+export const BUCKET_META: Record<CadenceBucket, { label: string; color: string }> = {
+  chill:    { label: "Chill",    color: "var(--color-cadence-chill)" },
+  light:    { label: "Light",    color: "var(--color-cadence-light)" },
+  balanced: { label: "Balanced", color: "var(--color-cadence-balanced)" },
+  heavy:    { label: "Heavy",    color: "var(--color-cadence-heavy)" },
+  brutal:   { label: "Brutal",   color: "var(--color-cadence-brutal)" },
+};
+
 export function scoreToBucket(score: number): CadenceBucket {
   if (score >= 8) return "brutal";
   if (score >= 6) return "heavy";
   if (score >= 4) return "balanced";
   if (score >= 2) return "light";
   return "chill";
-}
-
-export function bucketLabel(bucket: CadenceBucket): string {
-  switch (bucket) {
-    case "chill":
-      return "Chill";
-    case "light":
-      return "Light";
-    case "balanced":
-      return "Balanced";
-    case "heavy":
-      return "Heavy";
-    case "brutal":
-      return "Brutal";
-  }
-}
-
-export function bucketColor(bucket: CadenceBucket): string {
-  switch (bucket) {
-    case "chill":
-      return "var(--color-cadence-chill)";
-    case "light":
-      return "var(--color-cadence-light)";
-    case "balanced":
-      return "var(--color-cadence-balanced)";
-    case "heavy":
-      return "var(--color-cadence-heavy)";
-    case "brutal":
-      return "var(--color-cadence-brutal)";
-  }
 }
 
 export type CadenceResult = {
@@ -63,12 +41,7 @@ export type CadenceResult = {
 
 export function cadenceBucket(score: number): CadenceResult {
   const bucket = scoreToBucket(score);
-  return {
-    score,
-    bucket,
-    label: bucketLabel(bucket),
-    color: bucketColor(bucket),
-  };
+  return { score, bucket, ...BUCKET_META[bucket] };
 }
 
 /**
