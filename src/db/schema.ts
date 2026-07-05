@@ -1,4 +1,10 @@
-import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
+import {
+  sqliteTable,
+  text,
+  integer,
+  real,
+  uniqueIndex,
+} from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
 import { createId } from "@paralleldrive/cuid2";
 import { ACTIVITY_TYPES } from "@/lib/activity-types";
@@ -14,17 +20,25 @@ export const trips = sqliteTable("trips", {
     .$defaultFn(() => new Date()),
 });
 
-export const days = sqliteTable("days", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => createId()),
-  tripId: text("trip_id")
-    .notNull()
-    .references(() => trips.id, { onDelete: "cascade" }),
-  dayNumber: integer("day_number").notNull(),
-  notes: text("notes"),
-});
-
+export const days = sqliteTable(
+  "days",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    tripId: text("trip_id")
+      .notNull()
+      .references(() => trips.id, { onDelete: "cascade" }),
+    dayNumber: integer("day_number").notNull(),
+    notes: text("notes"),
+  },
+  (table) => [
+    uniqueIndex("days_trip_id_day_number_unique").on(
+      table.tripId,
+      table.dayNumber,
+    ),
+  ],
+);
 export const activities = sqliteTable("activities", {
   id: text("id")
     .primaryKey()

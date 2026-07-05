@@ -8,6 +8,13 @@
       "when": 1783290901931,
       "tag": "0000_whole_scalphunter",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1783291209153,
+      "tag": "0001_fuzzy_daimon_hellstrom",
+      "breakpoints": true
     }
   ]
 }

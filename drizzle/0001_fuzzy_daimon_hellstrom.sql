@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `days_trip_id_day_number_unique` ON `days` (`trip_id`,`day_number`);
