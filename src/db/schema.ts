@@ -68,3 +68,5 @@ export const daysRelations = relations(days, ({ one, many }) => ({
 export const activitiesRelations = relations(activities, ({ one }) => ({
   day: one(days, { fields: [activities.dayId], references: [days.id] }),
 }));
+
+export * from "./auth-schema";
