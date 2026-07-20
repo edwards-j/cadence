@@ -39,7 +39,8 @@ function TripCardRow({
             className="text-[12px] mt-[3px]"
             style={{ color: "var(--color-text-muted)" }}
           >
-            {formatDateRange(trip.startDate, trip.endDate)} · {trip.dayCount} days
+            {formatDateRange(trip.startDate, trip.endDate)} · {trip.dayCount}{" "}
+            days
           </div>
         </div>
         {!trip.isEmpty && (
@@ -73,20 +74,6 @@ function TripCardRow({
 
 export default async function Home() {
   const { upcoming, past } = await getAllTrips();
-
-  if (upcoming.length === 0 && past.length === 0) {
-    return (
-      <main
-        className="max-w-[480px] mx-auto px-6 py-16"
-        style={{ color: "var(--color-text-muted)" }}
-      >
-        <p>
-          No trips yet. Run <code>yarn tsx src/db/seed.ts</code> to seed the
-          database, or create one above.
-        </p>
-      </main>
-    );
-  }
 
   return (
     <main

@@ -28,6 +28,7 @@ export async function createTrip(input: {
   name: string;
   startDate: Date;
   dayCount: number;
+  userId: string;
 }): Promise<{ id: string }> {
   const tripId = createId();
 
@@ -42,6 +43,7 @@ export async function createTrip(input: {
       id: tripId,
       name: input.name,
       startDate: input.startDate,
+      userId: input.userId,
     }),
     db.insert(days).values(dayRows),
   ]);

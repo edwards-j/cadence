@@ -8,12 +8,16 @@ import {
 import { relations } from "drizzle-orm";
 import { createId } from "@paralleldrive/cuid2";
 import { ACTIVITY_TYPES } from "@/lib/activity-types";
+import { user } from "./auth-schema";
 
 export const trips = sqliteTable("trips", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => createId()),
   name: text("name").notNull(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
   startDate: integer("start_date", { mode: "timestamp" }).notNull(),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()

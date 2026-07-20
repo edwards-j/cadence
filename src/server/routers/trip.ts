@@ -11,8 +11,8 @@ export const tripRouter = router({
         dayCount: z.number().int().min(1).max(60),
       }),
     )
-    .mutation(async ({ input }) => {
-      return createTrip(input);
+    .mutation(async ({ input, ctx }) => {
+      return createTrip({ ...input, userId: ctx.user.id });
     }),
   createDay: protectedProcedure
     .input(
