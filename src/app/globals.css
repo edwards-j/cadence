@@ -54,6 +54,9 @@ html,
 body {
   background: var(--color-canvas);
   color: var(--color-text);
+  /* Disable double-tap-to-zoom; the viewport meta tag alone doesn't
+     stop this gesture on iOS Safari. */
+  touch-action: manipulation;
 }
 
 /* Hide native scrollbars inside the phone-shaped column. */

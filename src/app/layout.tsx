@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Instrument_Serif, Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 import { TRPCProvider } from "@/trpc/Provider";
@@ -22,6 +22,13 @@ export const metadata: Metadata = {
   icons: {
     apple: "/assets/apple-touch-icon.png",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({

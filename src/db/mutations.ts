@@ -1,4 +1,5 @@
 import { and, eq, max, sql } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
 import { db } from "./index";
 import { activities } from "./schema";
 import type { ActivityType } from "@/lib/activity-types";
@@ -33,7 +34,7 @@ async function assertTripOwnership(tripId: string, userId: string) {
     .from(trips)
     .where(eq(trips.id, tripId));
   if (!row || row.userId !== userId) {
-    throw new Error("Trip not found");
+    throw new TRPCError({ code: "NOT_FOUND", message: "Trip not found" });
   }
 }
 
@@ -44,7 +45,7 @@ async function assertDayOwnership(dayId: string, userId: string) {
     .innerJoin(trips, eq(days.tripId, trips.id))
     .where(eq(days.id, dayId));
   if (!row || row.userId !== userId) {
-    throw new Error("Day not found");
+    throw new TRPCError({ code: "NOT_FOUND", message: "Day not found" });
   }
 }
 
@@ -56,7 +57,7 @@ async function assertActivityOwnership(activityId: string, userId: string) {
     .innerJoin(trips, eq(days.tripId, trips.id))
     .where(eq(activities.id, activityId));
   if (!row || row.userId !== userId) {
-    throw new Error("Activity not found");
+    throw new TRPCError({ code: "NOT_FOUND", message: "Activity not found" });
   }
 }
 
@@ -88,9 +89,14 @@ export async function createTrip(input: {
 }
 
 export async function deleteTrip(input: { id: string; userId: string }) {
-  await db
+  const deleted = await db
     .delete(trips)
-    .where(and(eq(trips.id, input.id), eq(trips.userId, input.userId)));
+    .where(and(eq(trips.id, input.id), eq(trips.userId, input.userId)))
+    .returning({ id: trips.id });
+
+  if (deleted.length === 0) {
+    throw new TRPCError({ code: "NOT_FOUND", message: "Trip not found" });
+  }
 }
 
 export async function createDay(input: {
@@ -117,7 +123,7 @@ export async function deleteDay(input: { id: string; userId: string }) {
     .from(days)
     .where(eq(days.id, input.id));
 
-  if (!target) throw new Error("Day not found");
+  if (!target) throw new TRPCError({ code: "NOT_FOUND", message: "Day not found" });
 
   await assertTripOwnership(target.tripId, input.userId);
 
