@@ -1,4 +1,4 @@
-import { eq, max, sql } from "drizzle-orm";
+import { and, eq, max, sql } from "drizzle-orm";
 import { db } from "./index";
 import { activities } from "./schema";
 import type { ActivityType } from "@/lib/activity-types";
@@ -7,6 +7,7 @@ import { trips, days } from "@/db/schema";
 
 export type CreateActivityInput = {
   dayId: string;
+  userId: string;
   name: string;
   type: ActivityType;
   durationHours: number;
@@ -17,6 +18,7 @@ export type CreateActivityInput = {
 
 export type UpdateActivityInput = {
   id: string;
+  userId: string;
   name?: string;
   type?: ActivityType;
   durationHours?: number;
@@ -24,6 +26,40 @@ export type UpdateActivityInput = {
   startTime?: string;
   orderIndex?: number;
 };
+
+async function assertTripOwnership(tripId: string, userId: string) {
+  const [row] = await db
+    .select({ userId: trips.userId })
+    .from(trips)
+    .where(eq(trips.id, tripId));
+  if (!row || row.userId !== userId) {
+    throw new Error("Trip not found");
+  }
+}
+
+async function assertDayOwnership(dayId: string, userId: string) {
+  const [row] = await db
+    .select({ userId: trips.userId })
+    .from(days)
+    .innerJoin(trips, eq(days.tripId, trips.id))
+    .where(eq(days.id, dayId));
+  if (!row || row.userId !== userId) {
+    throw new Error("Day not found");
+  }
+}
+
+async function assertActivityOwnership(activityId: string, userId: string) {
+  const [row] = await db
+    .select({ userId: trips.userId })
+    .from(activities)
+    .innerJoin(days, eq(activities.dayId, days.id))
+    .innerJoin(trips, eq(days.tripId, trips.id))
+    .where(eq(activities.id, activityId));
+  if (!row || row.userId !== userId) {
+    throw new Error("Activity not found");
+  }
+}
+
 export async function createTrip(input: {
   name: string;
   startDate: Date;
@@ -51,15 +87,19 @@ export async function createTrip(input: {
   return { id: tripId };
 }
 
-export async function deleteTrip(input: { id: string }) {
-  await db.delete(trips).where(eq(trips.id, input.id));
+export async function deleteTrip(input: { id: string; userId: string }) {
+  await db
+    .delete(trips)
+    .where(and(eq(trips.id, input.id), eq(trips.userId, input.userId)));
 }
 
 export async function createDay(input: {
   tripId: string;
+  userId: string;
 }): Promise<{ id: string }> {
-  const dayId = createId();
+  await assertTripOwnership(input.tripId, input.userId);
 
+  const dayId = createId();
   await db.run(sql`
     INSERT INTO days (id, trip_id, day_number)
     VALUES (
@@ -68,17 +108,18 @@ export async function createDay(input: {
       COALESCE((SELECT MAX(day_number) FROM days WHERE trip_id = ${input.tripId}), 0) + 1
     )
   `);
-
   return { id: dayId };
 }
 
-export async function deleteDay(input: { id: string }) {
+export async function deleteDay(input: { id: string; userId: string }) {
   const [target] = await db
     .select({ tripId: days.tripId })
     .from(days)
     .where(eq(days.id, input.id));
 
   if (!target) throw new Error("Day not found");
+
+  await assertTripOwnership(target.tripId, input.userId);
 
   const allDays = await db
     .select({ id: days.id, dayNumber: days.dayNumber })
@@ -107,6 +148,8 @@ export async function deleteDay(input: { id: string }) {
 export async function createActivity(input: CreateActivityInput) {
   let { orderIndex } = input;
 
+  await assertDayOwnership(input.dayId, input.userId);
+
   if (orderIndex === undefined) {
     const [result] = await db
       .select({ maxOrder: max(activities.orderIndex) })
@@ -126,6 +169,8 @@ export async function createActivity(input: CreateActivityInput) {
 export async function updateActivity(input: UpdateActivityInput) {
   const { id, ...rest } = input;
 
+  await assertActivityOwnership(input.id, input.userId);
+
   const [activity] = await db
     .update(activities)
     .set(rest)
@@ -135,6 +180,7 @@ export async function updateActivity(input: UpdateActivityInput) {
   return activity;
 }
 
-export async function deleteActivity(id: string) {
-  await db.delete(activities).where(eq(activities.id, id));
+export async function deleteActivity(input: { id: string; userId: string }) {
+  await assertActivityOwnership(input.id, input.userId);
+  await db.delete(activities).where(eq(activities.id, input.id));
 }

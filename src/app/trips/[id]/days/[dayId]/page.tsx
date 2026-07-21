@@ -12,6 +12,7 @@ import { getDayDate } from "@/lib/dates";
 import { MONTHS, WEEKDAYS, formatHours, twoDigit } from "@/lib/format";
 import { KebabMenu } from "@/components/KebabMenu";
 import { DeleteDayButton } from "@/components/DeleteDayButton";
+import { requireUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -21,8 +22,9 @@ export default async function DayPage({
   params: Promise<{ id: string; dayId: string }>;
 }) {
   const { id, dayId } = await params;
+  const { id: userId } = await requireUser();
 
-  const trip = await getTripById(id);
+  const trip = await getTripById({ id, userId });
 
   if (!trip) notFound();
 

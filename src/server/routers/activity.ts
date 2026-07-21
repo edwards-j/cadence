@@ -16,7 +16,9 @@ export const activityRouter = router({
         orderIndex: z.number().int().nonnegative().optional(),
       }),
     )
-    .mutation(({ input }) => createActivity(input)),
+    .mutation(({ input, ctx }) =>
+      createActivity({ ...input, userId: ctx.user.id }),
+    ),
 
   update: protectedProcedure
     .input(
@@ -30,9 +32,13 @@ export const activityRouter = router({
         orderIndex: z.number().int().nonnegative().optional(),
       }),
     )
-    .mutation(({ input }) => updateActivity(input)),
+    .mutation(({ input, ctx }) =>
+      updateActivity({ ...input, userId: ctx.user.id }),
+    ),
 
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .mutation(({ input }) => deleteActivity(input.id)),
+    .mutation(({ input, ctx }) =>
+      deleteActivity({ ...input, userId: ctx.user.id }),
+    ),
 });

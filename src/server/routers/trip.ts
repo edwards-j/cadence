@@ -15,19 +15,15 @@ export const tripRouter = router({
       return createTrip({ ...input, userId: ctx.user.id });
     }),
   createDay: protectedProcedure
-    .input(
-      z.object({
-        tripId: z.string(),
-      }),
-    )
-    .mutation(async ({ input }) => {
-      return createDay(input);
-    }),
+    .input(z.object({ tripId: z.string() }))
+    .mutation(({ input, ctx }) => createDay({ ...input, userId: ctx.user.id })),
   delete: protectedProcedure
     .input(z.object({ id: z.string().min(1) }))
-    .mutation(({ input }) => deleteTrip(input)),
+    .mutation(({ input, ctx }) =>
+      deleteTrip({ ...input, userId: ctx.user.id }),
+    ),
 
   deleteDay: protectedProcedure
     .input(z.object({ id: z.string().min(1) }))
-    .mutation(({ input }) => deleteDay(input)),
+    .mutation(({ input, ctx }) => deleteDay({ ...input, userId: ctx.user.id })),
 });

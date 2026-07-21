@@ -20,6 +20,7 @@ import {
 } from "@/lib/format";
 import { KebabMenu } from "@/components/KebabMenu";
 import { DeleteTripButton } from "@/components/DeleteTripButton";
+import { requireUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +30,8 @@ export default async function TripPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const trip = await getTripById(id);
+  const { id: userId } = await requireUser();
+  const trip = await getTripById({ id, userId });
 
   if (!trip) notFound();
 

@@ -15,8 +15,9 @@ type TripCard = {
   isEmpty: boolean;
 };
 
-export async function getAllTrips() {
+export async function getAllTrips(input: { userId: string }) {
   const rows = await db.query.trips.findMany({
+    where: (trips, { eq }) => eq(trips.userId, input.userId),
     orderBy: (trips, { asc }) => [asc(trips.startDate)],
     with: {
       days: {
@@ -69,9 +70,10 @@ export async function getAllTrips() {
   return { upcoming, past };
 }
 
-export async function getTripById(id: string) {
+export async function getTripById(input: { id: string; userId: string }) {
   return db.query.trips.findFirst({
-    where: eq(trips.id, id),
+    where: (trips, { and, eq }) =>
+      and(eq(trips.id, input.id), eq(trips.userId, input.userId)),
     with: {
       days: {
         orderBy: (days, { asc }) => [asc(days.dayNumber)],

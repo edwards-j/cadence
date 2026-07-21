@@ -3,6 +3,8 @@ import { getAllTrips } from "@/db/queries";
 import { cadenceBucket } from "@/lib/cadence";
 import { NewTripForm } from "@/components/NewTripForm";
 import { formatDateRange } from "@/lib/format";
+import { requireUser } from "@/lib/session";
+import { SignOutButton } from "@/components/SignOutButton";
 
 export const dynamic = "force-dynamic";
 
@@ -73,7 +75,8 @@ function TripCardRow({
 }
 
 export default async function Home() {
-  const { upcoming, past } = await getAllTrips();
+  const { id: userId } = await requireUser();
+  const { upcoming, past } = await getAllTrips({ userId });
 
   return (
     <main
@@ -85,11 +88,14 @@ export default async function Home() {
       }}
     >
       <section className="px-6 pt-10 pb-2">
-        <div
-          className="text-[11px] tracking-[0.2em] uppercase"
-          style={{ color: "var(--color-text-muted)" }}
-        >
-          Trips · {upcoming.length + past.length}
+        <div className="flex items-center justify-between">
+          <div
+            className="text-[11px] tracking-[0.2em] uppercase"
+            style={{ color: "var(--color-text-muted)" }}
+          >
+            Trips · {upcoming.length + past.length}
+          </div>
+          <SignOutButton />
         </div>
         <div className="flex">
           <img src="/assets/cadence-mark-paper.svg" alt="" width="34" />
